@@ -1,0 +1,46 @@
+//****************************************************//
+//vRO JavaScript Code
+//Create, Update and Manage Resource Element
+//https://medium.com/@umit.demirtas/vrealize-orchestrator-vro-resource-elements-vmware-virtualization-fa0f9c9102d1
+//****************************************************//
+
+//Code to return the date and time
+var today = new Date();
+var day = String(today.getDate());
+var month = String(today.getMonth() + 1);
+//Because January is 0 :)
+var year = String(today.getFullYear());
+
+var strToday = month + '/' + day + '/' + year;
+// If you want, you can use the toLocaleDateString function for the date.
+//Ex: var strToday = today.toLocaleDateString();
+var strTime = today.toLocaleTimeString();
+
+
+//Updates the resource element if it exists. If not, creates it. 
+var resElem = new MimeAttachment();
+resElem.mimeType = "text/plain";
+resElem.content = "Date : " + strToday + "\nTime : " + strTime;
+//Template of resource element created.
+
+var fileName = "today.txt";
+var folder = "Resource Element";
+
+var resElems = Server.getResourceElementCategoryWithPath(folder );
+//Get all resource elements in "Resource Element" folder.
+
+var control = true;
+if (resElems.allResourceElements.length > 0){
+	resElems.resourceElements.forEach(function(entry) { //loop  
+		if(entry.name == fileName){ //get resource element by the name
+			entry.setContentFromMimeAttachment(resElem); 
+			//if file is found, update it.
+			control = false;
+		}
+	});
+}
+
+if(control){ //if the file is not found, create it.
+	Server.createResourceElement(folder, fileName, resElem);
+}
+//Resource element saved.
